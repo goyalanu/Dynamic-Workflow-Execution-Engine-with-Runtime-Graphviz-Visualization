@@ -1,0 +1,16 @@
+digraph WorkflowState {
+  rankdir=LR;
+  node [shape=ellipse, fontname="Arial", style=filled, fontsize=12];
+
+  ValidateOrder [label="Validate Order\nCOMPLETED", fillcolor="#8fd19e"];
+  ProcessPayment [label="Process Payment\nCOMPLETED", fillcolor="#8fd19e"];
+  ReserveInventory [label="Reserve Inventory\nCOMPLETED", fillcolor="#8fd19e"];
+  GenerateInvoice [label="Generate Invoice\nCOMPLETED", fillcolor="#8fd19e"];
+  SendNotification [label="Send Notification\nCOMPLETED", fillcolor="#8fd19e"];
+
+  ValidateOrder -> ProcessPayment;
+  ProcessPayment -> ReserveInventory;
+  ProcessPayment -> GenerateInvoice;
+  ReserveInventory -> SendNotification;
+  GenerateInvoice -> SendNotification;
+}
