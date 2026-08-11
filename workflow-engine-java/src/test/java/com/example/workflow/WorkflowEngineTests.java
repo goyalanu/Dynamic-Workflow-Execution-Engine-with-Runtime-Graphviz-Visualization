@@ -147,7 +147,7 @@ public final class WorkflowEngineTests {
     private static void serviceExposesRunStateJson() {
         WorkflowDefinition workflow = workflow();
         try (WorkflowRunService service = new WorkflowRunService(workflow)) {
-            String runId = service.startRun(com.example.workflow.service.RunMode.SUCCESS);
+            String runId = service.startRun();
             waitForCompletion(service, runId);
             String json = service.stateJson(runId);
 

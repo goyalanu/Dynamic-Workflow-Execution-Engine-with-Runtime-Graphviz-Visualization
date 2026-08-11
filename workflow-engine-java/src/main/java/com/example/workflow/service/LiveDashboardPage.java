@@ -114,9 +114,7 @@ public final class LiveDashboardPage {
                       <div id="subtitle">Start a run to watch persisted state become a graph.</div>
                     </div>
                     <div class="actions">
-                      <button class="primary" onclick="startRun('success')">Start Success</button>
-                      <button onclick="startRun('failure')">Start Failure</button>
-                      <button onclick="startRun('retry')">Start Retry</button>
+                      <button class="primary" onclick="startRun()">Start Workflow</button>
                     </div>
                   </header>
                   <main>
@@ -144,8 +142,8 @@ public final class LiveDashboardPage {
                     let selectedRunId = null;
                     let timer = null;
 
-                    async function startRun(mode) {
-                      const response = await fetch('/api/runs?mode=' + encodeURIComponent(mode), { method: 'POST' });
+                    async function startRun() {
+                      const response = await fetch('/api/runs', { method: 'POST' });
                       const body = await response.json();
                       selectedRunId = body.runId;
                       await refreshRuns();

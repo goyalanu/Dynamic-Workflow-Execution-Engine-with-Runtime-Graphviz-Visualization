@@ -1,13 +1,11 @@
 package com.example.workflow.service;
 
-import com.example.workflow.execution.StepExecutionException;
 import com.example.workflow.execution.StepHandler;
 import com.example.workflow.execution.WorkflowEngine;
 import com.example.workflow.persistence.InMemoryWorkflowStateStore;
 import com.example.workflow.persistence.StepRun;
 import com.example.workflow.persistence.WorkflowStateStore;
 import com.example.workflow.visualization.GraphvizRenderer;
-import com.example.workflow.workflow.FailureKind;
 import com.example.workflow.workflow.StepStatus;
 import com.example.workflow.workflow.WorkflowDefinition;
 
@@ -39,8 +37,8 @@ public final class WorkflowRunService implements AutoCloseable {
         this.executor = Executors.newCachedThreadPool();
     }
 
-    public String startRun(RunMode mode) {
-        WorkflowEngine engine = new WorkflowEngine(workflow, store, handlersFor(mode), 4, Clock.systemUTC());
+    public String startRun() {
+        WorkflowEngine engine = new WorkflowEngine(workflow, store, realStepHandlers(), 4, Clock.systemUTC());
         String runId = engine.startRun();
         knownRuns.add(runId);
         executor.submit(() -> engine.executeUntilStable(runId));
@@ -98,25 +96,10 @@ public final class WorkflowRunService implements AutoCloseable {
         return renderer.render(workflow, store, runId);
     }
 
-    private Map<String, StepHandler> handlersFor(RunMode mode) {
+    private Map<String, StepHandler> realStepHandlers() {
         Map<String, StepHandler> handlers = new LinkedHashMap<>();
         for (String stepName : workflow.steps().keySet()) {
             handlers.put(stepName, delayedHandler(550));
-        }
-        if (mode == RunMode.FAILURE) {
-            handlers.put("ReserveInventory", (runId, stepName) -> {
-                sleep(550);
-                throw new StepExecutionException("inventory unavailable", FailureKind.PERMANENT);
-            });
-        }
-        if (mode == RunMode.RETRY_THEN_SUCCESS) {
-            Set<String> failedOnce = ConcurrentHashMap.newKeySet();
-            handlers.put("ReserveInventory", (runId, stepName) -> {
-                sleep(550);
-                if (failedOnce.add(runId + ":" + stepName)) {
-                    throw new StepExecutionException("temporary inventory lock", FailureKind.TRANSIENT);
-                }
-            });
         }
         return handlers;
     }

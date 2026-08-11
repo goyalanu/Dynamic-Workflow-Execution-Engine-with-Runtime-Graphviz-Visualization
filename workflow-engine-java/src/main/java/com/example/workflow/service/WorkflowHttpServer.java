@@ -54,8 +54,7 @@ public final class WorkflowHttpServer {
             return;
         }
         if (method.equals("POST") && path.equals("/api/runs")) {
-            RunMode mode = RunMode.fromQuery(exchange.getRequestURI().getRawQuery());
-            String runId = runService.startRun(mode);
+            String runId = runService.startRun();
             send(exchange, 202, "application/json", "{\"runId\":\"" + runId + "\"}");
             return;
         }
